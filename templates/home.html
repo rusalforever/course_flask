@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Shelter</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="container mt-4">
+    <h2>Animals in the Shelter</h2>
+
+    <!-- Add animal form -->
+    <div class="card mt-4">
+        <div class="card-header">Add a New Animal</div>
+        <div class="card-body">
+            <form id="addAnimalForm">
+                <div class="form-group">
+                    <label for="animal_type">Animal Type:</label>
+                    <input type="text" class="form-control" id="animal_type" placeholder="Animal Type" required>
+                </div>
+                <div class="form-group">
+                    <label for="name">Animal Name:</label>
+                    <input type="text" class="form-control" id="name" placeholder="Animal Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="birth_date">Birth Date:</label>
+                    <input type="date" class="form-control" id="birth_date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Animal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- List of animals in a table -->
+    <h4 class="mt-4">List of animals:</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Animal Type</th>
+                <th>Name</th>
+                <th>Birth Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="animalsList">
+            <!-- Rows will be populated by jQuery -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit animal modal -->
+<div class="modal" tabindex="-1" role="dialog" id="editAnimalModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Animal</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="editAnimalForm">
+            <input type="hidden" id="editAnimalId">
+            <div class="form-group">
+                <label for="editAnimalType">Animal Type:</label>
+                <input type="text" class="form-control" id="editAnimalType" required>
+            </div>
+            <div class="form-group">
+                <label for="editAnimalName">Name:</label>
+                <input type="text" class="form-control" id="editAnimalName" required>
+            </div>
+            <div class="form-group">
+                <label for="editAnimalBirthDate">Birth Date:</label>
+                <input type="date" class="form-control" id="editAnimalBirthDate" required>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="submitEditAnimal()">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // Update animal
+    function updateAnimal(id) {
+        // Fetch the current details of the animal to pre-populate the form.
+        // This assumes you have a backend route to get details of a single animal.
+        $.getJSON(`/animal/${id}`, function(data) {
+            $('#editAnimalId').val(data.animal.id);
+            $('#editAnimalType').val(data.animal.animal_type);
+            $('#editAnimalName').val(data.animal.name);
+            $('#editAnimalBirthDate').val(data.animal.birth_date);
+            $('#editAnimalModal').modal('show');
+        });
+    }
+
+    function submitEditAnimal() {
+        const updatedAnimal = {
+            animal_type: $('#editAnimalType').val(),
+            name: $('#editAnimalName').val(),
+            birth_date: $('#editAnimalBirthDate').val()
+        };
+
+        const animalId = $('#editAnimalId').val();
+
+        $.ajax({
+            url: `/animal/${animalId}`,
+            type: 'PUT',
+            data: JSON.stringify(updatedAnimal),
+            contentType: 'application/json',
+            success: function() {
+                $('#editAnimalModal').modal('hide');
+                fetchAnimals();
+            }
+        });
+    }
+
+
+    // Fetch all animals and display them
+    function fetchAnimals() {
+        $.getJSON('/animals', function(data) {
+            $('#animalsList').empty();
+            data.animals.forEach(animal => {
+                console.log(animal)
+                $('#animalsList').append(`
+                    <tr>
+                        <td>${animal.animal_type}</td>
+                        <td>${animal.name}</td>
+                        <td>${animal.birth_date}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
+                        </td>
+                    </tr>
+                `);
+            });
+        });
+    }
+
+    // Add new animal
+    $('#addAnimalForm').on('submit', function(e) {
+        e.preventDefault();
+        const newAnimal = {
+            animal_type: $('#animal_type').val(),
+            name: $('#name').val(),
+            birth_date: $('#birth_date').val()
+        };
+        $.ajax({
+            url: '/animal',
+            type: 'POST',
+            data: JSON.stringify(newAnimal),
+            contentType: 'application/json',
+            success: function() {
+                fetchAnimals();
+                $('#addAnimalForm')[0].reset();
+            }
+        });
+    });
+
+    // Delete animal
+    function deleteAnimal(id) {
+        if (confirm('Are you sure you want to delete this animal?')) {
+            $.ajax({
+                url: `/animal/${id}`,
+                type: 'DELETE',
+                success: function() {
+                    fetchAnimals();
+                }
+            });
+        }
+    }
+
+    // Initial fetch
+    fetchAnimals();
+
+
+</script>
+</body>
+</html>
