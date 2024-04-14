@@ -1,10 +1,12 @@
-from flask import Flask, jsonify, request, Response, render_template
+from flask import Flask, jsonify, request, Response, render_template, make_response
 
 from models.pydantic.models import AnimalCreate, AnimalResponse
 from typing import Union
 from settings import settings
 from database import init_db
 from models.sqlalchemy.models import Animal
+from datetime import datetime
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.sqlalchemy_database_uri
@@ -23,13 +25,27 @@ def index() -> Response:
     return jsonify({"animals": [AnimalResponse.model_validate(animal).model_dump(mode='json') for animal in animals]})
 
 
+@app.route('/health', methods=['GET'])
+def get_health() -> Response:
+    response = make_response("Hi")
+    response.status_code = 200
+    return response
+
+
 @app.route('/animal', methods=['POST'])
 def add_animal() -> tuple[Response, int]:
     data = AnimalCreate(**request.get_json())
+
     new_animal = Animal(
         animal_type=data.animal_type,
         name=data.name,
-        birth_date=data.birth_date
+        birth_date=data.birth_date,
+        breed=data.breed,
+        foto=data.foto,
+        age=data.age
+
+
+
     )
     db.session.add(new_animal)
     db.session.commit()
@@ -51,6 +67,9 @@ def update_animal(pk: int) -> Union[Response, tuple[Response, int]]:
     animal.animal_type = data.animal_type
     animal.name = data.name
     animal.birth_date = data.birth_date
+    animal.foto = data.foto
+    animal.breed = data.breed
+    animal.age = data.age
     db.session.commit()
     return jsonify(
         {
@@ -91,4 +110,4 @@ def initialize_app():
 
 if __name__ == '__main__':
     initialize_app()
-    app.run(debug=True)
+    app.run(debug=True, port=8000)

@@ -33,6 +33,13 @@
                     <label for="birth_date">Birth Date:</label>
                     <input type="date" class="form-control" id="birth_date" required>
                 </div>
+                <div class="form-group">
+                    <label for="breed">Breed:</label>
+                    <input type="text" class="form-control" id="breed" required>
+                </div>
+                <div class="form-group">
+                    <label for="foto">FOTO:</label>
+                    <input type="text" class="form-control" id="foto" required>
                 <button type="submit" class="btn btn-primary">Add Animal</button>
             </form>
         </div>
@@ -46,6 +53,9 @@
                 <th>Animal Type</th>
                 <th>Name</th>
                 <th>Birth Date</th>
+                <th>Age</th>
+                <th>Breed</th>
+                <th>Foto</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -80,6 +90,14 @@
                 <label for="editAnimalBirthDate">Birth Date:</label>
                 <input type="date" class="form-control" id="editAnimalBirthDate" required>
             </div>
+            <div class="form-group">
+                <label for="editAnimalBreed">Breed:</label>
+                <input type="text" class="form-control" id="editAnimalBreed" required>
+            </div>
+            <div class="form-group">
+                <label for="editAnimalFoto">Foto:</label>
+                <input type="text" class="form-control" id="editAnimalFoto" required>
+            </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -91,99 +109,112 @@
 </div>
 
 <script>
-    // Update animal
-    function updateAnimal(id) {
-        // Fetch the current details of the animal to pre-populate the form.
-        // This assumes you have a backend route to get details of a single animal.
-        $.getJSON(`/animal/${id}`, function(data) {
-            $('#editAnimalId').val(data.animal.id);
-            $('#editAnimalType').val(data.animal.animal_type);
-            $('#editAnimalName').val(data.animal.name);
-            $('#editAnimalBirthDate').val(data.animal.birth_date);
-            $('#editAnimalModal').modal('show');
-        });
-    }
+// Update animal
+function updateAnimal(id) {
+    $.getJSON(`/animal/${id}`, function(data) {
+        $('#editAnimalId').val(data.animal.id);
+        $('#editAnimalType').val(data.animal.animal_type);
+        $('#editAnimalName').val(data.animal.name);
+        $('#editAnimalBirthDate').val(data.animal.birth_date);
+        $('#editAnimalBreed').val(data.animal.breed);
+        $('#editAnimalFoto').val(data.animal.foto);
 
-    function submitEditAnimal() {
-        const updatedAnimal = {
-            animal_type: $('#editAnimalType').val(),
-            name: $('#editAnimalName').val(),
-            birth_date: $('#editAnimalBirthDate').val()
-        };
+        const birthDate = new Date(data.animal.birth_date);
+        const ageInMilliseconds = Date.now() - birthDate.getTime();
+        const ageInYears = new Date(ageInMilliseconds).getUTCFullYear() - 1970;
 
-        const animalId = $('#editAnimalId').val();
+        $('#editAnimalAge').val(ageInYears);
+        $('#editAnimalModal').modal('show');
+    });
+}
+function submitEditAnimal() {
+    const updatedAnimal = {
+        id: $('#editAnimalId').val(),
+        animal_type: $('#editAnimalType').val(),
+        name: $('#editAnimalName').val(),
+        birth_date: $('#editAnimalBirthDate').val(),
+        breed: document.getElementById('editAnimalBreed').value,
+        foto: $('#editAnimalFoto').val()  // Include the foto field
+    };
+    const birthDate = new Date($('#editAnimalBirthDate').val());
+    const ageInMilliseconds = Date.now() - birthDate.getTime();
+    const ageInYears = new Date(ageInMilliseconds).getUTCFullYear() - 1970;
+    updatedAnimal.age = ageInYears;
 
-        $.ajax({
-            url: `/animal/${animalId}`,
-            type: 'PUT',
-            data: JSON.stringify(updatedAnimal),
-            contentType: 'application/json',
-            success: function() {
-                $('#editAnimalModal').modal('hide');
-                fetchAnimals();
-            }
-        });
-    }
+    $.ajax({
+        url: `/animal/${updatedAnimal.id}`,
+        type: 'PUT',
+        data: JSON.stringify(updatedAnimal),
+        contentType: 'application/json',
+        success: function() {
+            $('#editAnimalModal').modal('hide');
+            fetchAnimals();
+        }
+    });
+}
 
+// Add new animal
+$('#addAnimalForm').on('submit', function(e) {
+    e.preventDefault();
+    const birthDate = new Date($('#birth_date').val());
+    const ageInMilliseconds = Date.now() - birthDate.getTime();
+    const ageInYears = new Date(ageInMilliseconds).getUTCFullYear() - 1970;
 
-    // Fetch all animals and display them
-    function fetchAnimals() {
-        $.getJSON('/animals', function(data) {
-            $('#animalsList').empty();
-            data.animals.forEach(animal => {
-                console.log(animal)
-                $('#animalsList').append(`
-                    <tr>
-                        <td>${animal.animal_type}</td>
-                        <td>${animal.name}</td>
-                        <td>${animal.birth_date}</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
-                        </td>
-                    </tr>
-                `);
-            });
-        });
-    }
+    const newAnimal = {
+        animal_type: $('#animal_type').val(),
+        name: $('#name').val(),
+        birth_date: $('#birth_date').val(),
+        breed: $('#breed').val(),
+        foto: $('#foto').val(),
+        age: ageInYears // Set the age
+    };
+   $.ajax({
+        url: '/animal',
+        type: 'POST',
+        data: JSON.stringify(newAnimal),
+        contentType: 'application/json',
+        success: function() {
+            fetchAnimals();
+            $('#addAnimalForm')[0].reset();
+        }
+    });
+});
 
-    // Add new animal
-    $('#addAnimalForm').on('submit', function(e) {
-        e.preventDefault();
-        const newAnimal = {
-            animal_type: $('#animal_type').val(),
-            name: $('#name').val(),
-            birth_date: $('#birth_date').val()
-        };
-        $.ajax({
-            url: '/animal',
-            type: 'POST',
-            data: JSON.stringify(newAnimal),
-            contentType: 'application/json',
-            success: function() {
-                fetchAnimals();
-                $('#addAnimalForm')[0].reset();
-            }
+function fetchAnimals() {
+    $.getJSON('/animals', function(data) {
+        $('#animalsList').empty();
+        data.animals.forEach(animal => {
+            $('#animalsList').append(`
+                <tr>
+                    <td>${animal.animal_type}</td>
+                    <td>${animal.name}</td>
+                    <td>${animal.birth_date}</td>
+                    <td>${animal.age}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
+                    </td>
+                </tr>
+            `);
         });
     });
+}
 
-    // Delete animal
-    function deleteAnimal(id) {
-        if (confirm('Are you sure you want to delete this animal?')) {
-            $.ajax({
-                url: `/animal/${id}`,
-                type: 'DELETE',
-                success: function() {
-                    fetchAnimals();
-                }
-            });
-        }
+// Delete animal
+function deleteAnimal(id) {
+    if (confirm('Are you sure you want to delete this animal?')) {
+        $.ajax({
+            url: `/animal/${id}`,
+            type: 'DELETE',
+            success: function() {
+                fetchAnimals();
+            }
+        });
     }
+}
 
-    // Initial fetch
-    fetchAnimals();
-
-
+// Initial fetch
+fetchAnimals();
 </script>
 </body>
 </html>
