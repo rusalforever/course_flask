@@ -20,7 +20,14 @@ def home() -> str:
 @app.route('/animals', methods=['GET'])
 def index() -> Response:
     animals = Animal.query.all()
-    return jsonify({"animals": [AnimalResponse.model_validate(animal).model_dump(mode='json') for animal in animals]})
+    return jsonify({"animals": [
+        AnimalResponse.model_validate(animal).model_dump(mode='json') for
+        animal in animals]})
+
+
+@app.route('/health')
+def health():
+    return Response(status=200)
 
 
 @app.route('/animal', methods=['POST'])
