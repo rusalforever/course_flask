@@ -59,6 +59,8 @@ def update_animal(pk: int) -> Union[Response, tuple[Response, int]]:
 
     animal.animal_type = data.animal_type
     animal.name = data.name
+    animal.breed = data.breed
+    animal.photo_url = data.photo_url
     animal.birth_date = data.birth_date
     db.session.commit()
     return jsonify(
