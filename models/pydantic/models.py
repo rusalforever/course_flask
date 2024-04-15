@@ -1,5 +1,6 @@
+from datetime import date, timedelta
+from pydantic import BaseModel, ConfigDict, computed_field
 from datetime import date
-from pydantic import BaseModel, ConfigDict
 
 
 class AnimalCreate(BaseModel):
@@ -19,3 +20,11 @@ class AnimalResponse(BaseModel):
     birth_date: date
     breed: str
     photo_url: str
+
+
+    @computed_field
+    @property
+    def age(self) -> int:
+        return date.today().year - self.birth_date.year
+
+

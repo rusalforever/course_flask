@@ -57,6 +57,7 @@
                 <th>Birth Date</th>
                 <th>Breed</th>
                 <th>Photo</th>
+                <th>Age</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -162,6 +163,7 @@
                         <td>${animal.birth_date}</td>
                         <td>${animal.breed}</td>
                         <td><img src='${animal.photo_url}' /></td>
+                        <td>${animal.age}</td>
                         <td>
                             <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
