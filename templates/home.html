@@ -33,6 +33,15 @@
                     <label for="birth_date">Birth Date:</label>
                     <input type="date" class="form-control" id="birth_date" required>
                 </div>
+                <div class="form-group">
+                    <label for="breed">Breed:</label>
+                    <input type="text" class="form-control" id="breed" required>
+                </div>
+                <div class="form-group">
+                    <label for="photo_url">Photo URL:</label>
+                    <input type="text" class="form-control" id="photo_url" required>
+                </div>
+
                 <button type="submit" class="btn btn-primary">Add Animal</button>
             </form>
         </div>
@@ -46,6 +55,8 @@
                 <th>Animal Type</th>
                 <th>Name</th>
                 <th>Birth Date</th>
+                <th>Breed</th>
+                <th>Photo URL</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -79,6 +90,10 @@
             <div class="form-group">
                 <label for="editAnimalBirthDate">Birth Date:</label>
                 <input type="date" class="form-control" id="editAnimalBirthDate" required>
+            </div>
+             <div class="form-group">
+                <label for="editBreed">Breed:</label>
+                <input type="text" class="form-control" id="editBreed" required>
             </div>
         </form>
       </div>
@@ -137,6 +152,8 @@
                         <td>${animal.animal_type}</td>
                         <td>${animal.name}</td>
                         <td>${animal.birth_date}</td>
+                        <td>${animal.breed}</td>
+                        <td>${animal.photo_url}</td>
                         <td>
                             <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
@@ -153,7 +170,9 @@
         const newAnimal = {
             animal_type: $('#animal_type').val(),
             name: $('#name').val(),
-            birth_date: $('#birth_date').val()
+            birth_date: $('#birth_date').val(),
+            breed: $('#breed').val(),
+            photo_url: $('#photo_url').val(),
         };
         $.ajax({
             url: '/animal',

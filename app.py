@@ -36,7 +36,9 @@ def add_animal() -> tuple[Response, int]:
     new_animal = Animal(
         animal_type=data.animal_type,
         name=data.name,
-        birth_date=data.birth_date
+        birth_date=data.birth_date,
+        breed=data.breed,
+        photo_url=data.photo_url,
     )
     db.session.add(new_animal)
     db.session.commit()
