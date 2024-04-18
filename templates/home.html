@@ -33,6 +33,14 @@
                     <label for="birth_date">Birth Date:</label>
                     <input type="date" class="form-control" id="birth_date" required>
                 </div>
+                <div class="form-group">
+                    <label for="breed">Breed of Animal:</label>
+                    <input type="text" class="form-control" id="breed" placeholder="Animal Breed" required>
+                </div>
+                <div class="form-group">
+                    <label for="photo_url">Photo of your Animal (URL):</label>
+                    <input type="text" class="form-control" id="photo_url" placeholder="If empty, there will be a random photo">
+                </div>
                 <button type="submit" class="btn btn-primary">Add Animal</button>
             </form>
         </div>
@@ -80,6 +88,14 @@
                 <label for="editAnimalBirthDate">Birth Date:</label>
                 <input type="date" class="form-control" id="editAnimalBirthDate" required>
             </div>
+            <div class="form-group">
+                <label for="editAnimalBreed">Breed:</label>
+                <input type="text" class="form-control" id="editAnimalBreed" required>
+            </div>
+            <div class="form-group">
+                <label for="editPhotoUrl">Photo of your Animal (URL):</label>
+                <input type="text" class="form-control" id="editPhotoUrl">
+            </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -100,6 +116,8 @@
             $('#editAnimalType').val(data.animal.animal_type);
             $('#editAnimalName').val(data.animal.name);
             $('#editAnimalBirthDate').val(data.animal.birth_date);
+            $('#editAnimalBreed').val(data.animal.breed);
+            $('#editPhotoUrl').val(data.animal.photo_url);
             $('#editAnimalModal').modal('show');
         });
     }
@@ -153,7 +171,9 @@
         const newAnimal = {
             animal_type: $('#animal_type').val(),
             name: $('#name').val(),
-            birth_date: $('#birth_date').val()
+            birth_date: $('#birth_date').val(),
+            breed: $('#breed').val(),
+            photo_url: $('#photo_url').val()
         };
         $.ajax({
             url: '/animal',
