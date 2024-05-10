@@ -16,6 +16,9 @@ db = init_db(app)
 def home() -> str:
     return render_template('home.html')
 
+@app.route('/health')
+def health_check():
+    return '', 200
 
 @app.route('/animals', methods=['GET'])
 def index() -> Response:
@@ -28,8 +31,10 @@ def add_animal() -> tuple[Response, int]:
     data = AnimalCreate(**request.get_json())
     new_animal = Animal(
         animal_type=data.animal_type,
+        animal_breed=data.animal_breed,
         name=data.name,
-        birth_date=data.birth_date
+        birth_date=data.birth_date,
+        photo_url=data.photo_url,
     )
     db.session.add(new_animal)
     db.session.commit()
@@ -49,8 +54,10 @@ def update_animal(pk: int) -> Union[Response, tuple[Response, int]]:
         return jsonify({"message": "Animal not found"}), 404
 
     animal.animal_type = data.animal_type
+    animal.breed = data.animal_breed,
     animal.name = data.name
     animal.birth_date = data.birth_date
+    animal.photo_url = data.photo_url
     db.session.commit()
     return jsonify(
         {
