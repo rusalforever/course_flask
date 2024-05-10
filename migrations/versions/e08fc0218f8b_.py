@@ -21,7 +21,9 @@ def upgrade():
     op.create_table('animal',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('animal_type', sa.String(), nullable=False),
+    sa.Column('animal_breed', sa.String(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('photo_url', sa.String(), nullable=False),
     sa.Column('birth_date', sa.Date(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
