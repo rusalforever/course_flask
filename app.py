@@ -45,7 +45,6 @@ def add_animal() -> tuple[Response, int]:
         }
     ), 201
 
-
 @app.route('/animal/<int:pk>', methods=['PUT'])
 def update_animal(pk: int) -> Union[Response, tuple[Response, int]]:
     data = AnimalCreate(**request.get_json())

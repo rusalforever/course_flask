@@ -26,12 +26,20 @@
                     <input type="text" class="form-control" id="animal_type" placeholder="Animal Type" required>
                 </div>
                 <div class="form-group">
+                    <label for="animal_breed">Animal Breed:</label>
+                    <input type="text" class="form-control" id="animal_breed" placeholder="Animal Breed" required>
+                </div>
+                <div class="form-group">
                     <label for="name">Animal Name:</label>
                     <input type="text" class="form-control" id="name" placeholder="Animal Name" required>
                 </div>
                 <div class="form-group">
                     <label for="birth_date">Birth Date:</label>
                     <input type="date" class="form-control" id="birth_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="photo_url">Photo URL:</label>
+                    <input type="text" class="form-control" id="photo_url" placeholder="Photo URL">
                 </div>
                 <button type="submit" class="btn btn-primary">Add Animal</button>
             </form>
@@ -44,8 +52,11 @@
         <thead>
             <tr>
                 <th>Animal Type</th>
+                <th>Animal Breed</th>
                 <th>Name</th>
                 <th>Birth Date</th>
+                <th>Age</th>
+                <th>Photo</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -73,12 +84,20 @@
                 <input type="text" class="form-control" id="editAnimalType" required>
             </div>
             <div class="form-group">
+                <label for="editAnimalBreed">Animal Breed:</label>
+                <input type="text" class="form-control" id="editAnimalBreed" required>
+            </div>
+            <div class="form-group">
                 <label for="editAnimalName">Name:</label>
                 <input type="text" class="form-control" id="editAnimalName" required>
             </div>
             <div class="form-group">
                 <label for="editAnimalBirthDate">Birth Date:</label>
                 <input type="date" class="form-control" id="editAnimalBirthDate" required>
+            </div>
+            <div class="form-group">
+                <label for="editAnimalPhotoUrl">Photo URL:</label>
+                <input type="text" class="form-control" id="editAnimalPhotoUrl" placeholder="Photo URL">
             </div>
         </form>
       </div>
@@ -98,8 +117,10 @@
         $.getJSON(`/animal/${id}`, function(data) {
             $('#editAnimalId').val(data.animal.id);
             $('#editAnimalType').val(data.animal.animal_type);
+            $('#editAnimalBreed').val(data.animal.animal_breed);
             $('#editAnimalName').val(data.animal.name);
             $('#editAnimalBirthDate').val(data.animal.birth_date);
+            $('#editAnimalPhotoUrl').val(data.animal.photo_url);
             $('#editAnimalModal').modal('show');
         });
     }
@@ -107,8 +128,10 @@
     function submitEditAnimal() {
         const updatedAnimal = {
             animal_type: $('#editAnimalType').val(),
+            animal_breed: $('#editAnimalBreed').val(),
             name: $('#editAnimalName').val(),
-            birth_date: $('#editAnimalBirthDate').val()
+            birth_date: $('#editAnimalBirthDate').val(),
+            photo_url: $('#editAnimalPhotoUrl').val()
         };
 
         const animalId = $('#editAnimalId').val();
@@ -131,12 +154,15 @@
         $.getJSON('/animals', function(data) {
             $('#animalsList').empty();
             data.animals.forEach(animal => {
-                console.log(animal)
+                const age = calculateAge(new Date(animal.birth_date));
                 $('#animalsList').append(`
                     <tr>
                         <td>${animal.animal_type}</td>
+                        <td>${animal.animal_breed}</td>
                         <td>${animal.name}</td>
                         <td>${animal.birth_date}</td>
+                        <td>${age}</td>
+                        <td><img src="${animal.photo_url}" alt="Animal Photo" style="max-width: 100px;"></td>
                         <td>
                             <button class="btn btn-warning btn-sm" onclick="updateAnimal(${animal.id})">Update</button>
                             <button class="btn btn-danger btn-sm" onclick="deleteAnimal(${animal.id})">Delete</button>
@@ -147,13 +173,23 @@
         });
     }
 
+    // Function to calculate age from birth date
+    function calculateAge(birthDate) {
+        const now = new Date();
+        const diff = now.getTime() - birthDate.getTime();
+        const ageDate = new Date(diff);
+        return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
     // Add new animal
     $('#addAnimalForm').on('submit', function(e) {
         e.preventDefault();
         const newAnimal = {
             animal_type: $('#animal_type').val(),
+            animal_breed: $('#animal_breed').val(),
             name: $('#name').val(),
-            birth_date: $('#birth_date').val()
+            birth_date: $('#birth_date').val(),
+            photo_url: $('#photo_url').val()
         };
         $.ajax({
             url: '/animal',
@@ -182,7 +218,6 @@
 
     // Initial fetch
     fetchAnimals();
-
 
 </script>
 </body>
